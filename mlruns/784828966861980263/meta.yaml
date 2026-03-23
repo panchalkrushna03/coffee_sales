@@ -1,0 +1,7 @@
+artifact_location: file:D:/coffee_sales/coffee_sales/mlruns/784828966861980263
+creation_time: 1774252050436
+experiment_id: '784828966861980263'
+last_update_time: 1774252050436
+lifecycle_stage: active
+name: coffee_price_prediction
+workspace: default

@@ -1,0 +1,10 @@
+artifact_location: file:D:/coffee_sales/coffee_sales/mlruns/784828966861980263/models/m-4f488d76d96c4daba78dab484884576e/artifacts
+creation_timestamp: 1774252061941
+experiment_id: '784828966861980263'
+last_updated_timestamp: 1774252076201
+model_id: m-4f488d76d96c4daba78dab484884576e
+model_type: null
+name: sklearn-model
+source_run_id: bf6d7f97ff544c1bb76840b9abbe24ff
+status: 2
+status_message: null

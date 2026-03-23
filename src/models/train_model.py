@@ -5,6 +5,8 @@ from pathlib import Path
 import pickle
 import json
 import yaml
+import mlflow
+import mlflow.sklearn
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
@@ -25,7 +27,11 @@ class CoffeeModelTrainer:
         """Initialize trainer with configuration."""
         with open(config_path, 'r') as f:
             self.config = yaml.safe_load(f)
-        
+
+        # initialize MLflow tracking
+        mlflow_tracking_uri = self.config.get('mlflow', {}).get('tracking_uri', 'file:./mlruns')
+        mlflow.set_tracking_uri(mlflow_tracking_uri)
+
         self.model = None
         self.metrics = {}
     
@@ -140,21 +146,51 @@ class CoffeeModelTrainer:
         logger.info("Metrics saved successfully!")
     
     def train_and_evaluate(self, X_train, X_test, y_train, y_test):
-        """Complete training and evaluation pipeline."""
+        """Complete training and evaluation pipeline with MLflow tracking."""
         logger.info("Starting training and evaluation pipeline")
-        
-        # Build model
-        self.build_model()
-        
-        # Train model
-        self.train(X_train, y_train)
-        
-        # Evaluate model
-        self.evaluate(X_test, y_test)
-        
-        logger.info("Training and evaluation completed!")
-        
-        return self.model, self.metrics
+
+        # Track experiment in MLflow
+        mlflow.set_experiment(self.config.get('mlflow', {}).get('experiment_name', 'coffee_price_prediction'))
+
+        with mlflow.start_run(run_name=self.config.get('mlflow', {}).get('run_name', 'coffee_price_run')):
+            # Log model configuration and hyperparameters
+            mlflow.log_params({
+                'model_type': self.config['model']['type'],
+                **self.config['model']['hyperparameters']
+            })
+            mlflow.log_params({
+                'test_size': self.config['preprocessing']['test_size'],
+                'random_state': self.config['preprocessing']['random_state']
+            })
+
+            # Build model
+            self.build_model()
+
+            # Train model
+            self.train(X_train, y_train)
+
+            # Evaluate model
+            self.evaluate(X_test, y_test)
+
+            # Log metrics
+            mlflow.log_metrics(self.metrics)
+
+            # Save temporary model artifact
+            model_artifact_path = 'mlflow_model.pkl'
+            self.save_model(model_artifact_path)
+            mlflow.log_artifact(model_artifact_path, artifact_path='models')
+
+            # Log preprocessor if exists
+            preprocessor_path = self.config['artifacts'].get('preprocessor_path', 'models/preprocessor.pkl')
+            if Path(preprocessor_path).exists():
+                mlflow.log_artifact(preprocessor_path, artifact_path='preprocessor')
+
+            # Model save via mlflow.sklearn
+            mlflow.sklearn.log_model(self.model, artifact_path='sklearn-model')
+
+            logger.info("Training and evaluation completed!")
+            
+            return self.model, self.metrics
 
 
 def main():

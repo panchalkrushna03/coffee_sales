@@ -69,7 +69,12 @@ evaluation:
     - "mse"
     - "rmse"
     - "mae"
-  
+
+mlflow:
+  experiment_name: "coffee_price_prediction"
+  run_name: "coffee_price_run"
+  tracking_uri: "file:./mlruns"  # update to remote tracking server URI if needed
+
 # Logging
 logging:
   level: "INFO"
