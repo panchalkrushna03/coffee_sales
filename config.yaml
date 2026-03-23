@@ -1,0 +1,76 @@
+# Coffee Sales Price Prediction Configuration File
+
+# Data paths
+data:
+  raw_path: "data/raw/coffee_shop_sales.csv"
+  processed_path: "data/processed/processed_coffee_sales.csv"
+  interim_path: "data/interim/"
+
+# Preprocessing settings
+preprocessing:
+  target_variable: "unit_price"
+  test_size: 0.2
+  random_state: 42
+  
+  # Missing value handling
+  missing_values:
+    strategy: "drop"  # drop or fillna
+    
+  # Feature engineering
+  features:
+    categorical:
+      - "city"
+      - "country"
+      - "store_type"
+      - "product_category"
+      - "product_name"
+      - "payment_method"
+      - "customer_age_group"
+      - "customer_gender"
+      - "loyalty_member"
+      - "weather_condition"
+    numeric:
+      - "quantity"
+      - "discount_applied"
+      - "temperature_c"
+      
+  # Scaling
+  scaling:
+    enabled: true
+    method: "standard"  # standard or minmax
+
+# Model configuration
+model:
+  type: "random_forest"  # random_forest, gradient_boosting, linear_regression
+  hyperparameters:
+    n_estimators: 100
+    max_depth: 10
+    min_samples_split: 5
+    random_state: 42
+  
+# Training settings
+training:
+  test_size: 0.2
+  validation_size: 0.1
+  random_state: 42
+  cv_folds: 5
+
+# Model artifacts paths
+artifacts:
+  model_path: "models/trained_model.pkl"
+  preprocessor_path: "models/preprocessor.pkl"
+  scaler_path: "models/scaler.pkl"
+  metrics_path: "reports/metrics.json"
+  
+# Evaluation metrics
+evaluation:
+  metrics:
+    - "r2_score"
+    - "mse"
+    - "rmse"
+    - "mae"
+  
+# Logging
+logging:
+  level: "INFO"
+  log_file: "logs/project.log"
